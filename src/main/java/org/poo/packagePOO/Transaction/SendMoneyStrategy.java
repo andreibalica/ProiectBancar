@@ -10,8 +10,9 @@ public class SendMoneyStrategy implements TransactionStrategy {
     private final String receiver;
     private final double amount;
     private final String description;
-    private final int timestamp;  // adăugăm timestamp
+    private final int timestamp;
     private String error;
+    double amountToReceive;
 
     public SendMoneyStrategy(String sender, double amount, String receiver, String description,
                              int timestamp) {
@@ -19,12 +20,11 @@ public class SendMoneyStrategy implements TransactionStrategy {
         this.amount = amount;
         this.receiver = receiver;
         this.description = description;
-        this.timestamp = timestamp;  // salvăm timestamp-ul
+        this.timestamp = timestamp;
     }
 
     @Override
     public boolean validate() {
-        // Verificăm dacă conturile există
         BankAccount senderAccount = GlobalManager.getGlobal().getBank().getAccountIBAN(sender);
         BankAccount receiverAccount = GlobalManager.getGlobal().getBank().getAccountIBAN(receiver);
 
@@ -37,6 +37,7 @@ public class SendMoneyStrategy implements TransactionStrategy {
         }
 
         if (senderAccount.getBalance() < amount) {
+            senderAccount.addTransactionHistory(TransactionFactory.createErrorTransaction(timestamp, "Insufficient funds"));
             return false;
         }
 
@@ -48,11 +49,11 @@ public class SendMoneyStrategy implements TransactionStrategy {
         BankAccount senderAccount = GlobalManager.getGlobal().getBank().getAccountIBAN(sender);
         BankAccount receiverAccount = GlobalManager.getGlobal().getBank().getAccountIBAN(receiver);
 
-        double amountToReceive = amount;
-        if (!senderAccount.getCurrency().equals(receiverAccount.getCurrency())) {
-            amountToReceive =
-                    CurrencyConverter.getConverter().converteste(senderAccount.getCurrency(),
-                            receiverAccount.getCurrency(), amount);
+        amountToReceive = amount;
+        try {
+            amountToReceive = CurrencyConverter.getConverter().convert(senderAccount.getCurrency(), receiverAccount.getCurrency(), amount);
+        }catch (IllegalArgumentException e){
+            return false;
         }
 
         senderAccount.payAmount(amount);

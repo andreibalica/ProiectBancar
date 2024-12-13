@@ -3,8 +3,10 @@ package org.poo.packagePOO.Transaction;
 import org.poo.packagePOO.Bank.Account.BankAccount;
 import org.poo.packagePOO.Bank.Account.TransactionsHistory.TransactionFactory;
 import org.poo.packagePOO.Bank.Card;
+import org.poo.packagePOO.Command.DeleteCard;
 import org.poo.packagePOO.CurrencyConverter;
 import org.poo.packagePOO.GlobalManager;
+import org.poo.utils.Utils;
 
 public class PayOnlineStrategy implements TransactionStrategy {
     private final String cardNumber;
@@ -51,7 +53,7 @@ public class PayOnlineStrategy implements TransactionStrategy {
                 if (card.getCardNumber().equals(cardNumber)) {
                     double amountConvert;
                     try {
-                        amountConvert = CurrencyConverter.getConverter().converteste(currency, account.getCurrency(), amount);
+                        amountConvert = CurrencyConverter.getConverter().convert(currency, account.getCurrency(), amount);
                     } catch (IllegalArgumentException e) {
                         return false;
                     }
@@ -67,6 +69,13 @@ public class PayOnlineStrategy implements TransactionStrategy {
                     }
 
                     account.payAmount(amountConvert);
+                    if(card.getUse()==0){
+                        account.deleteCard(card.getCardNumber());
+                        Card newCard = new Card(email, Utils.generateCardNumber(), account.getIBAN(), timestamp);
+                        newCard.setUse(0);
+                        account.addCard(newCard);
+                    }
+
                     account.addTransactionHistory(TransactionFactory.createOnlineTransaction(timestamp, "Card payment", cardNumber, amountConvert, account.getCurrency(), commerciant));
                     return true;
                 }

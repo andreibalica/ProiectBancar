@@ -12,6 +12,10 @@ public abstract class TransactionHistory implements Visitable {
     public int getTimestamp() { return timestamp; }
     public String getDescription() { return description; }
 
+    public boolean isPayment() {
+        return false;
+    }
+
     @Override
     public abstract void accept(TransactionVisitor visitor);
 }

@@ -17,6 +17,11 @@ public class CardPaymentTransaction extends TransactionHistory {
     }
 
     @Override
+    public boolean isPayment() {
+        return true;
+    }
+
+    @Override
     public void accept(TransactionVisitor visitor) {
         visitor.visit(this);
     }
@@ -25,4 +30,5 @@ public class CardPaymentTransaction extends TransactionHistory {
     public double getAmount() { return amount; }
     public String getCurrency() { return currency; }
     public String getCommerciant() { return commerciant; }
+
 }

@@ -6,4 +6,5 @@ public interface TransactionVisitor {
     void visit(MoneyTransferTransaction transaction);
     void visit(CardPaymentTransaction cardPaymentTransaction);
     void visit(ErrorTransaction transaction);
+    void visit(SplitPaymentsTransaction transaction);
 }

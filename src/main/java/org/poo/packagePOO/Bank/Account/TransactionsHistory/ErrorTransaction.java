@@ -12,8 +12,4 @@ public class ErrorTransaction extends TransactionHistory {
     public void accept(TransactionVisitor visitor) {
         visitor.visit(this);
     }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
 }

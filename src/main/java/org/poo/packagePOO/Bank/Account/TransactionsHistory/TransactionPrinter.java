@@ -64,4 +64,23 @@ public class TransactionPrinter implements TransactionVisitor {
         node.put("description", transaction.getDescription());
         output.add(node);
     }
+
+    @Override
+    public void visit(SplitPaymentsTransaction transaction) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode node = mapper.createObjectNode();
+
+        node.put("timestamp", transaction.getTimestamp());
+        node.put("description", transaction.getDescription());
+        node.put("currency", transaction.getCurrency());
+        node.put("amount", transaction.getSplitAmount());
+
+        ArrayNode accountsArray = mapper.createArrayNode();
+        for (String account : transaction.getInvolvedAccounts()) {
+            accountsArray.add(account);
+        }
+        node.set("involvedAccounts", accountsArray);
+
+        output.add(node);
+    }
 }

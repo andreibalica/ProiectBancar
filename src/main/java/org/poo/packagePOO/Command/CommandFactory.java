@@ -2,6 +2,7 @@ package org.poo.packagePOO.Command;
 
 import org.poo.fileio.CommandInput;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -96,6 +97,27 @@ public class CommandFactory {
         commandCreators.put("setMinimumBalance", input -> new SetMinimumBalance(
                 input.getAccount(),
                 input.getAmount(),
+                input.getTimestamp()
+        ));
+
+        commandCreators.put("splitPayment", input -> new SplitPayments(
+                new ArrayList<>(input.getAccounts()),
+                input.getTimestamp(),
+                input.getCurrency(),
+                input.getAmount()
+        ));
+
+        commandCreators.put("report", input -> new Report(
+                input.getStartTimestamp(),
+                input.getEndTimestamp(),
+                input.getAccount(),
+                input.getTimestamp()
+        ));
+
+        commandCreators.put("spendingsReport", input -> new SpendingsReport(
+                input.getStartTimestamp(),
+                input.getEndTimestamp(),
+                input.getAccount(),
                 input.getTimestamp()
         ));
     }

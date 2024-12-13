@@ -35,7 +35,7 @@ public class CurrencyConverter {
         exchangeRates.computeIfAbsent(from, k -> new HashMap<>()).put(to, rate);
     }
 
-    public double converteste(String from, String to, double amount) {
+    public double convert(String from, String to, double amount) {
         if (from.equals(to)) {
             return amount;
         }
