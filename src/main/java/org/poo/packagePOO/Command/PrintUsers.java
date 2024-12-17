@@ -9,14 +9,21 @@ import org.poo.packagePOO.Bank.Card;
 import org.poo.packagePOO.Bank.User;
 import org.poo.packagePOO.GlobalManager;
 
-
-public class PrintUsers implements Command {
+public final class PrintUsers implements Command {
     private final int timestamp;
 
-    public PrintUsers(int timestamp) {
+    /**
+     *
+     * @param timestamp
+     */
+    public PrintUsers(final int timestamp) {
         this.timestamp = timestamp;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public void execute() {
         ObjectMapper mapper = new ObjectMapper();

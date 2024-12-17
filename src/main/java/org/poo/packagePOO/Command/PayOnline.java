@@ -6,7 +6,7 @@ import org.poo.packagePOO.GlobalManager;
 import org.poo.packagePOO.Transaction.PayOnlineStrategy;
 import org.poo.packagePOO.Transaction.TransactionStrategy;
 
-public class PayOnline implements Command {
+public final class PayOnline implements Command {
     private final TransactionStrategy strategy;
     private final String cardNumber;
     private final double amount;
@@ -16,33 +16,60 @@ public class PayOnline implements Command {
     private final String email;
     private final int timestamp;
 
-    public PayOnline(String CardNumber, double Amount, String Currency, String Description,
-                     String Commerciant, String Email, int Timestamp) {
-        this.cardNumber = CardNumber;
-        this.amount = Amount;
-        this.currency = Currency;
-        this.description = Description;
-        this.commerciant = Commerciant;
-        this.email = Email;
-        this.timestamp = Timestamp;
-        this.strategy = new PayOnlineStrategy(cardNumber, amount, currency, description,
-                commerciant, email, timestamp);
+    /**
+     *
+     * @param cardNumber
+     * @param amount
+     * @param currency
+     * @param description
+     * @param commerciant
+     * @param email
+     * @param timestamp
+     */
+    public PayOnline(final String cardNumber,
+                     final double amount,
+                     final String currency,
+                     final String description,
+                     final String commerciant,
+                     final String email,
+                     final int timestamp) {
+        this.cardNumber = cardNumber;
+        this.amount = amount;
+        this.currency = currency;
+        this.description = description;
+        this.commerciant = commerciant;
+        this.email = email;
+        this.timestamp = timestamp;
+        this.strategy = new PayOnlineStrategy(
+                cardNumber,
+                amount,
+                currency,
+                description,
+                commerciant,
+                email,
+                timestamp
+        );
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public void execute() {
-
-        if ((!strategy.validate() || !strategy.process()) && strategy.getError() != null) {
+        if ((!strategy.validate() || !strategy.process())
+                && strategy.getError() != null) {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode response = mapper.createObjectNode();
-            response.put("command", "payOnline");
             ObjectNode output = mapper.createObjectNode();
+
+            response.put("command", "payOnline");
             output.put("timestamp", timestamp);
             output.put("description", strategy.getError());
             response.set("output", output);
             response.put("timestamp", timestamp);
+
             GlobalManager.getGlobal().getOutput().add(response);
         }
     }
-
 }

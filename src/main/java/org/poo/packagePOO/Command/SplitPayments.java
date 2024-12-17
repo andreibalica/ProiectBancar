@@ -7,32 +7,54 @@ import org.poo.packagePOO.Transaction.SplitPaymentsStrategy;
 
 import java.util.ArrayList;
 
-public class SplitPayments implements Command {
+public final class SplitPayments implements Command {
     private final SplitPaymentsStrategy strategy;
     private final ArrayList<String> accounts;
     private final int timestamp;
     private final String currency;
     private final double amount;
 
-    public SplitPayments(ArrayList<String> accounts, int timestamp, String currency, double amount) {
+    /**
+     *
+     * @param accounts
+     * @param timestamp
+     * @param currency
+     * @param amount
+     */
+    public SplitPayments(final ArrayList<String> accounts,
+                         final int timestamp,
+                         final String currency,
+                         final double amount) {
         this.accounts = accounts;
         this.timestamp = timestamp;
         this.currency = currency;
         this.amount = amount;
-        strategy = new SplitPaymentsStrategy(accounts, amount, currency, timestamp);
+        strategy = new SplitPaymentsStrategy(
+                accounts,
+                amount,
+                currency,
+                timestamp
+        );
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public void execute() {
-        if ((!strategy.validate() || !strategy.process()) && strategy.getError() != null) {
+        if ((!strategy.validate() || !strategy.process())
+                && strategy.getError() != null) {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode response = mapper.createObjectNode();
-            response.put("command", "splitPayments");
             ObjectNode output = mapper.createObjectNode();
+
+            response.put("command", "splitPayments");
             output.put("timestamp", timestamp);
             output.put("description", strategy.getError());
             response.set("output", output);
             response.put("timestamp", timestamp);
+
             GlobalManager.getGlobal().getOutput().add(response);
         }
     }

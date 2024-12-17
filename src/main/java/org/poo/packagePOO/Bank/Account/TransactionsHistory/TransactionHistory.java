@@ -4,14 +4,36 @@ public abstract class TransactionHistory implements Visitable {
     protected final int timestamp;
     protected final String description;
 
-    public TransactionHistory(int timestamp, String description) {
+    /**
+     *
+     * @param timestamp
+     * @param description
+     */
+    public TransactionHistory(final int timestamp, final String description) {
         this.timestamp = timestamp;
         this.description = description;
     }
 
-    public int getTimestamp() { return timestamp; }
-    public String getDescription() { return description; }
+    /**
+     *
+     * @return
+     */
+    public int getTimestamp() {
+        return timestamp;
+    }
 
+    /**
+     *
+     * @return
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     *
+     * @return
+     */
     public boolean isPayment() {
         return false;
     }

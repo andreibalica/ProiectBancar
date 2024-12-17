@@ -6,19 +6,33 @@ import org.poo.packagePOO.Bank.Account.BankAccount;
 import org.poo.packagePOO.Bank.Bank;
 import org.poo.packagePOO.GlobalManager;
 
-public class SetAlias implements Command {
+public final class SetAlias implements Command {
     private final String email;
     private final String alias;
-    private final String IBAN;
+    private final String iban;
     private final int timestamp;
 
-    public SetAlias(String email, String alias, String IBAN, int timestamp) {
+    /**
+     *
+     * @param email
+     * @param alias
+     * @param iban
+     * @param timestamp
+     */
+    public SetAlias(final String email,
+                    final String alias,
+                    final String iban,
+                    final int timestamp) {
         this.email = email;
         this.alias = alias;
-        this.IBAN = IBAN;
+        this.iban = iban;
         this.timestamp = timestamp;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public void execute() {
         ObjectMapper mapper = new ObjectMapper();
@@ -26,7 +40,7 @@ public class SetAlias implements Command {
         ObjectNode outputNode = mapper.createObjectNode();
 
         Bank bank = GlobalManager.getGlobal().getBank();
-        BankAccount account = bank.getAccountIBAN(IBAN);
+        BankAccount account = bank.getAccountIBAN(iban);
 
         if (account == null) {
             outputNode.put("error", "Account not found");
@@ -37,6 +51,6 @@ public class SetAlias implements Command {
             return;
         }
 
-        bank.addAlias(email, alias, IBAN);
+        bank.addAlias(email, alias, iban);
     }
 }

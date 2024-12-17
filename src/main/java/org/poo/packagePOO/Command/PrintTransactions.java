@@ -9,28 +9,48 @@ import org.poo.packagePOO.Bank.Account.TransactionsHistory.TransactionPrinter;
 import org.poo.packagePOO.Bank.Account.TransactionsHistory.TransactionVisitor;
 import org.poo.packagePOO.GlobalManager;
 
-public class PrintTransactions implements Command {
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+public final class PrintTransactions implements Command {
     private final String email;
     private final int timestamp;
 
-    public PrintTransactions(String email, int timestamp) {
+    /**
+     *
+     * @param email
+     * @param timestamp
+     */
+    public PrintTransactions(final String email,
+                             final int timestamp) {
         this.email = email;
         this.timestamp = timestamp;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public void execute() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode commandNode = mapper.createObjectNode();
         ArrayNode transactionsArray = mapper.createArrayNode();
 
+        List<TransactionHistory> allTransactions = new ArrayList<>();
+
         for (BankAccount account : GlobalManager.getGlobal().getBank().getAccounts()) {
             if (account.getEmail().equals(email)) {
-                for (TransactionHistory transaction : account.getTransactionHistory()) {
-                    TransactionVisitor visitor = new TransactionPrinter(transactionsArray);
-                    transaction.accept(visitor);
-                }
+                allTransactions.addAll(account.getTransactionHistory());
             }
+        }
+
+        allTransactions.sort(Comparator.comparingInt(TransactionHistory::getTimestamp));
+
+        for (TransactionHistory transaction : allTransactions) {
+            TransactionVisitor visitor = new TransactionPrinter(transactionsArray);
+            transaction.accept(visitor);
         }
 
         commandNode.put("command", "printTransactions");

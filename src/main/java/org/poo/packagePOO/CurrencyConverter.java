@@ -3,24 +3,42 @@ package org.poo.packagePOO;
 import org.poo.packagePOO.Bank.Bank;
 import org.poo.packagePOO.Bank.ExchangeRate;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
-public class CurrencyConverter {
-    private static final CurrencyConverter converter = new CurrencyConverter();
+public final class CurrencyConverter {
+    private static final CurrencyConverter CONVERTER = new CurrencyConverter();
     private Map<String, Map<String, Double>> exchangeRates;
 
+    /**
+     *
+     */
     private CurrencyConverter() {
         this.exchangeRates = new HashMap<>();
     }
 
+    /**
+     *
+     * @return
+     */
     public static CurrencyConverter getConverter() {
-        return converter;
+        return CONVERTER;
     }
 
+    /**
+     *
+     */
     public void newConverter() {
         this.exchangeRates = new HashMap<>();
     }
 
+    /**
+     *
+     */
     public void initializeaza() {
         exchangeRates.clear();
         Bank bank = GlobalManager.getGlobal().getBank();
@@ -31,11 +49,25 @@ public class CurrencyConverter {
         }
     }
 
-    private void addRate(String from, String to, double rate) {
+    /**
+     *
+     * @param from
+     * @param to
+     * @param rate
+     */
+    private void addRate(final String from, final String to, final double rate) {
         exchangeRates.computeIfAbsent(from, k -> new HashMap<>()).put(to, rate);
     }
 
-    public double convert(String from, String to, double amount) {
+    /**
+     *
+     * @param from
+     * @param to
+     * @param amount
+     * @return
+     */
+    public double convert(final String from, final String to,
+                          final double amount) {
         if (from.equals(to)) {
             return amount;
         }
@@ -56,12 +88,14 @@ public class CurrencyConverter {
                 continue;
             }
 
-            for (Map.Entry<String, Double> neighbor : exchangeRates.get(current).entrySet()) {
+            for (Map.Entry<String, Double> neighbor
+                    : exchangeRates.get(current).entrySet()) {
                 String nextCurrency = neighbor.getKey();
                 if (!visited.contains(nextCurrency)) {
                     visited.add(nextCurrency);
                     queue.add(nextCurrency);
-                    rates.put(nextCurrency, rates.get(current) * neighbor.getValue());
+                    rates.put(nextCurrency,
+                            rates.get(current) * neighbor.getValue());
                     path.put(nextCurrency, current);
 
                     if (nextCurrency.equals(to)) {

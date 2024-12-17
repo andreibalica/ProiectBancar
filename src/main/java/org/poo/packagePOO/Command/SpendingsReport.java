@@ -11,19 +11,33 @@ import org.poo.packagePOO.GlobalManager;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SpendingsReport implements Command {
+public final class SpendingsReport implements Command {
     private final int startTimestamp;
     private final int endTimestamp;
-    private final String IBAN;
+    private final String iban;
     private final int timestamp;
 
-    public SpendingsReport(int startTimestamp, int endTimestamp, String IBAN, int timestamp) {
+    /**
+     *
+     * @param startTimestamp
+     * @param endTimestamp
+     * @param iban
+     * @param timestamp
+     */
+    public SpendingsReport(final int startTimestamp,
+                           final int endTimestamp,
+                           final String iban,
+                           final int timestamp) {
         this.startTimestamp = startTimestamp;
         this.endTimestamp = endTimestamp;
-        this.IBAN = IBAN;
+        this.iban = iban;
         this.timestamp = timestamp;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public void execute() {
         ObjectMapper mapper = new ObjectMapper();
@@ -33,13 +47,23 @@ public class SpendingsReport implements Command {
         ArrayNode commerciants = mapper.createArrayNode();
         Map<String, Double> totals = new HashMap<>();
 
-        BankAccount account = GlobalManager.getGlobal().getBank().getAccountIBAN(IBAN);
+        BankAccount account = GlobalManager.getGlobal()
+                .getBank().getAccountIBAN(iban);
         if (account != null) {
-            for (TransactionHistory transaction : account.getTransactionHistory()) {
-                if (transaction.getTimestamp() >= startTimestamp &&
-                        transaction.getTimestamp() <= endTimestamp &&
-                        transaction.isPayment()) {
+            if (account.getAccountType().equals("savings")) {
+                outputNode.put("error",
+                        "This kind of report is not supported for a saving account");
+                commandNode.put("command", "spendingsReport");
+                commandNode.set("output", outputNode);
+                commandNode.put("timestamp", timestamp);
+                GlobalManager.getGlobal().getOutput().add(commandNode);
+                return;
+            }
 
+            for (TransactionHistory transaction : account.getTransactionHistory()) {
+                if (transaction.getTimestamp() >= startTimestamp
+                        && transaction.getTimestamp() <= endTimestamp
+                        && transaction.isPayment()) {
                     CardPaymentTransaction payment = (CardPaymentTransaction) transaction;
 
                     ObjectNode transactionNode = mapper.createObjectNode();
@@ -49,7 +73,8 @@ public class SpendingsReport implements Command {
                     transactionNode.put("commerciant", payment.getCommerciant());
                     transactions.add(transactionNode);
 
-                    totals.merge(payment.getCommerciant(), payment.getAmount(), Double::sum);
+                    totals.merge(payment.getCommerciant(),
+                            payment.getAmount(), Double::sum);
                 }
             }
 
@@ -63,7 +88,7 @@ public class SpendingsReport implements Command {
                     });
 
             commandNode.put("command", "spendingsReport");
-            outputNode.put("IBAN", IBAN);
+            outputNode.put("IBAN", iban);
             outputNode.put("balance", account.getBalance());
             outputNode.put("currency", account.getCurrency());
             outputNode.set("transactions", transactions);
@@ -71,6 +96,13 @@ public class SpendingsReport implements Command {
             commandNode.set("output", outputNode);
             commandNode.put("timestamp", timestamp);
 
+            GlobalManager.getGlobal().getOutput().add(commandNode);
+        } else {
+            commandNode.put("command", "spendingsReport");
+            outputNode.put("description", "Account not found");
+            outputNode.put("timestamp", timestamp);
+            commandNode.set("output", outputNode);
+            commandNode.put("timestamp", timestamp);
             GlobalManager.getGlobal().getOutput().add(commandNode);
         }
     }

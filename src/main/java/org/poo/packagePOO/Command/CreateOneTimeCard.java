@@ -7,28 +7,47 @@ import org.poo.packagePOO.Bank.Card;
 import org.poo.packagePOO.GlobalManager;
 import org.poo.utils.Utils;
 
-public class CreateOneTimeCard implements Command {
+public final class CreateOneTimeCard implements Command {
     private final String email;
-    private final String IBAN;
+    private final String iban;
     private final int timestamp;
 
-    public CreateOneTimeCard(String email, String IBAN, int timestamp) {
+    /**
+     *
+     * @param email
+     * @param iban
+     * @param timestamp
+     */
+    public CreateOneTimeCard(final String email,
+                             final String iban,
+                             final int timestamp) {
         this.email = email;
-        this.IBAN = IBAN;
+        this.iban = iban;
         this.timestamp = timestamp;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public void execute() {
         Bank bank = GlobalManager.getGlobal().getBank();
-        BankAccount account = bank.getAccountIBAN(IBAN);
+        BankAccount account = bank.getAccountIBAN(iban);
 
         if (account != null) {
             String cardNumber = Utils.generateCardNumber();
-            Card card = new Card(email, cardNumber, IBAN, timestamp);
+            Card card = new Card(email, cardNumber, iban, timestamp);
             card.setUse(0);
-            account.addTransactionHistory(TransactionFactory.createCardTransaction(timestamp,
-                    cardNumber, email, IBAN, true));
+            account.addTransactionHistory(
+                    TransactionFactory.createCardTransaction(
+                            timestamp,
+                            cardNumber,
+                            email,
+                            iban,
+                            true
+                    )
+            );
             account.addCard(card);
         }
     }

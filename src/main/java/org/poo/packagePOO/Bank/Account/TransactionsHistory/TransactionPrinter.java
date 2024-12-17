@@ -4,15 +4,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class TransactionPrinter implements TransactionVisitor {
+public final class TransactionPrinter implements TransactionVisitor {
     private final ArrayNode output;
 
-    public TransactionPrinter(ArrayNode output) {
+    /**
+     *
+     * @param output
+     */
+    public TransactionPrinter(final ArrayNode output) {
         this.output = output;
     }
 
+    /**
+     *
+     * @param transaction
+     */
     @Override
-    public void visit(CreateAccountTransaction transaction) {
+    public void visit(final CreateAccountTransaction transaction) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
         node.put("timestamp", transaction.getTimestamp());
@@ -20,8 +28,12 @@ public class TransactionPrinter implements TransactionVisitor {
         output.add(node);
     }
 
+    /**
+     *
+     * @param transaction
+     */
     @Override
-    public void visit(CardCreateDeleteTransaction transaction) {
+    public void visit(final CardCreateDeleteTransaction transaction) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
         node.put("timestamp", transaction.getTimestamp());
@@ -32,8 +44,12 @@ public class TransactionPrinter implements TransactionVisitor {
         output.add(node);
     }
 
+    /**
+     *
+     * @param transaction
+     */
     @Override
-    public void visit(MoneyTransferTransaction transaction) {
+    public void visit(final MoneyTransferTransaction transaction) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
         node.put("timestamp", transaction.getTimestamp());
@@ -45,8 +61,12 @@ public class TransactionPrinter implements TransactionVisitor {
         output.add(node);
     }
 
+    /**
+     *
+     * @param transaction
+     */
     @Override
-    public void visit(CardPaymentTransaction transaction) {
+    public void visit(final CardPaymentTransaction transaction) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
         node.put("timestamp", transaction.getTimestamp());
@@ -56,8 +76,12 @@ public class TransactionPrinter implements TransactionVisitor {
         output.add(node);
     }
 
+    /**
+     *
+     * @param transaction
+     */
     @Override
-    public void visit(ErrorTransaction transaction) {
+    public void visit(final ErrorTransaction transaction) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
         node.put("timestamp", transaction.getTimestamp());
@@ -65,8 +89,12 @@ public class TransactionPrinter implements TransactionVisitor {
         output.add(node);
     }
 
+    /**
+     *
+     * @param transaction
+     */
     @Override
-    public void visit(SplitPaymentsTransaction transaction) {
+    public void visit(final SplitPaymentsTransaction transaction) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode node = mapper.createObjectNode();
 
@@ -81,6 +109,37 @@ public class TransactionPrinter implements TransactionVisitor {
         }
         node.set("involvedAccounts", accountsArray);
 
+        if (transaction.getError() != null) {
+            node.put("error", transaction.getError());
+        }
+
+        output.add(node);
+    }
+
+    /**
+     *
+     * @param transaction
+     */
+    @Override
+    public void visit(final InterestTransaction transaction) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode node = mapper.createObjectNode();
+        node.put("timestamp", transaction.getTimestamp());
+        node.put("description", transaction.getDescription());
+        node.put("amount", transaction.getAmount());
+        output.add(node);
+    }
+
+    /**
+     *
+     * @param transaction
+     */
+    @Override
+    public void visit(final InterestRateTransaction transaction) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode node = mapper.createObjectNode();
+        node.put("timestamp", transaction.getTimestamp());
+        node.put("description", transaction.getDescription());
         output.add(node);
     }
 }

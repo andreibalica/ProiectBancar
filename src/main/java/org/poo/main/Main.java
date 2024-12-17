@@ -101,7 +101,7 @@ public final class Main {
         GlobalManager.getGlobal().getBank().initializeBank(inputData);
         CurrencyConverter.getConverter().newConverter();
         CurrencyConverter.getConverter().initializeaza();
-        for(CommandInput command : inputData.getCommands()) {
+        for (CommandInput command : inputData.getCommands()) {
             GlobalManager.getGlobal().getBank().executeCommand(command);
         }
 

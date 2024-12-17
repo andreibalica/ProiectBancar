@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.poo.packagePOO.Bank.Bank;
 import org.poo.utils.Utils;
 
-public class GlobalManager {
-    private static final GlobalManager global = new GlobalManager();
+public final class GlobalManager {
+    private static final GlobalManager GLOBAL = new GlobalManager();
     private Bank bank;
     private ArrayNode output;
 
@@ -13,26 +13,49 @@ public class GlobalManager {
         this.bank = new Bank();
     }
 
+    /**
+     *
+     * @return
+     */
     public static GlobalManager getGlobal() {
-        return global;
+        return GLOBAL;
     }
 
-    public void setBank(Bank bank) {
+    /**
+     *
+     * @param bank
+     */
+    public void setBank(final Bank bank) {
         this.bank = bank;
     }
 
+    /**
+     *
+     * @return
+     */
     public Bank getBank() {
         return bank;
     }
 
-    public void setOutput(ArrayNode output) {
+    /**
+     *
+     * @param output
+     */
+    public void setOutput(final ArrayNode output) {
         this.output = output;
     }
 
+    /**
+     *
+     * @return
+     */
     public ArrayNode getOutput() {
         return output;
     }
 
+    /**
+     *
+     */
     public void newBank() {
         Utils.resetRandom();
         this.bank = new Bank();

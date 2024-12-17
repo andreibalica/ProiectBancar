@@ -1,12 +1,22 @@
 package org.poo.packagePOO.Bank.Account.TransactionsHistory;
 
-public class CreateAccountTransaction extends TransactionHistory {
-    public CreateAccountTransaction(int timestamp, String description) {
+public final class CreateAccountTransaction extends TransactionHistory {
+    /**
+     *
+     * @param timestamp
+     * @param description
+     */
+    public CreateAccountTransaction(final int timestamp,
+                                    final String description) {
         super(timestamp, description);
     }
 
+    /**
+     *
+     * @param visitor
+     */
     @Override
-    public void accept(TransactionVisitor visitor) {
+    public void accept(final TransactionVisitor visitor) {
         visitor.visit(this);
     }
 }

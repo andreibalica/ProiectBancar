@@ -3,12 +3,11 @@ package org.poo.packagePOO.Transaction;
 import org.poo.packagePOO.Bank.Account.BankAccount;
 import org.poo.packagePOO.Bank.Account.TransactionsHistory.TransactionFactory;
 import org.poo.packagePOO.Bank.Card;
-import org.poo.packagePOO.Command.DeleteCard;
 import org.poo.packagePOO.CurrencyConverter;
 import org.poo.packagePOO.GlobalManager;
 import org.poo.utils.Utils;
 
-public class PayOnlineStrategy implements TransactionStrategy {
+public final class PayOnlineStrategy implements TransactionStrategy {
     private final String cardNumber;
     private final double amount;
     private final String currency;
@@ -18,8 +17,20 @@ public class PayOnlineStrategy implements TransactionStrategy {
     private final int timestamp;
     private String error;
 
-    public PayOnlineStrategy(String cardNumber, double amount, String currency,
-                             String description, String commerciant, String email, int timestamp) {
+    /**
+     *
+     * @param cardNumber
+     * @param amount
+     * @param currency
+     * @param description
+     * @param commerciant
+     * @param email
+     * @param timestamp
+     */
+    public PayOnlineStrategy(final String cardNumber, final double amount,
+                             final String currency, final String description,
+                             final String commerciant, final String email,
+                             final int timestamp) {
         this.cardNumber = cardNumber;
         this.amount = amount;
         this.currency = currency;
@@ -29,6 +40,10 @@ public class PayOnlineStrategy implements TransactionStrategy {
         this.timestamp = timestamp;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public boolean validate() {
         for (BankAccount account : GlobalManager.getGlobal().getBank().getAccounts()) {
@@ -38,6 +53,11 @@ public class PayOnlineStrategy implements TransactionStrategy {
                         error = "Card not owned by user";
                         return false;
                     }
+                    if (card.getStatus().equals("frozen")) {
+                        account.addTransactionHistory(TransactionFactory
+                                .createErrorTransaction(timestamp, "The card is frozen"));
+                        return false;
+                    }
                     return true;
                 }
             }
@@ -46,6 +66,10 @@ public class PayOnlineStrategy implements TransactionStrategy {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public boolean process() {
         for (BankAccount account : GlobalManager.getGlobal().getBank().getAccounts()) {
@@ -53,30 +77,37 @@ public class PayOnlineStrategy implements TransactionStrategy {
                 if (card.getCardNumber().equals(cardNumber)) {
                     double amountConvert;
                     try {
-                        amountConvert = CurrencyConverter.getConverter().convert(currency, account.getCurrency(), amount);
+                        amountConvert = CurrencyConverter.getConverter().convert(
+                                currency, account.getCurrency(), amount);
                     } catch (IllegalArgumentException e) {
                         return false;
                     }
 
-                    if (card.getStatus() == "frozen") {
-                        account.addTransactionHistory(TransactionFactory.createErrorTransaction(timestamp, "The card is frozen"));
-                        return false;
-                    }
-
                     if (account.getBalance() < amountConvert) {
-                        account.addTransactionHistory(TransactionFactory.createErrorTransaction(timestamp, "Insufficient funds"));
+                        account.addTransactionHistory(TransactionFactory
+                                .createErrorTransaction(timestamp, "Insufficient funds"));
                         return false;
                     }
 
                     account.payAmount(amountConvert);
-                    if(card.getUse()==0){
+                    account.addTransactionHistory(TransactionFactory
+                            .createOnlineTransaction(timestamp, "Card payment",
+                                    cardNumber, amountConvert, account.getCurrency(),
+                                    commerciant));
+                    if (card.getUse() == 0) {
+                        account.addTransactionHistory(TransactionFactory
+                                .createCardTransaction(timestamp, cardNumber,
+                                        email, account.getIBAN(), false));
                         account.deleteCard(card.getCardNumber());
-                        Card newCard = new Card(email, Utils.generateCardNumber(), account.getIBAN(), timestamp);
+                        Card newCard = new Card(email, Utils.generateCardNumber(),
+                                account.getIBAN(), timestamp);
                         newCard.setUse(0);
+                        account.addTransactionHistory(TransactionFactory
+                                .createCardTransaction(timestamp,
+                                        newCard.getCardNumber(), email,
+                                        account.getIBAN(), true));
                         account.addCard(newCard);
                     }
-
-                    account.addTransactionHistory(TransactionFactory.createOnlineTransaction(timestamp, "Card payment", cardNumber, amountConvert, account.getCurrency(), commerciant));
                     return true;
                 }
             }
@@ -85,6 +116,10 @@ public class PayOnlineStrategy implements TransactionStrategy {
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String getError() {
         return error;

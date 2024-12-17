@@ -1,14 +1,12 @@
 package org.poo.packagePOO.Command;
 
 import org.poo.fileio.CommandInput;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class CommandFactory {
-
+public final class CommandFactory {
     private final Map<String, Function<CommandInput, Command>> commandCreators;
 
     public CommandFactory() {
@@ -120,14 +118,29 @@ public class CommandFactory {
                 input.getAccount(),
                 input.getTimestamp()
         ));
+
+        commandCreators.put("addInterest", input -> new AddInterest(
+                input.getAccount(),
+                input.getTimestamp()
+        ));
+
+        commandCreators.put("changeInterestRate", input -> new ChangeInterestRate(
+                input.getAccount(),
+                input.getInterestRate(),
+                input.getTimestamp()
+        ));
     }
 
-    public Command createCommand(CommandInput input) {
+    /**
+     *
+     * @param input
+     * @return
+     */
+    public Command createCommand(final CommandInput input) {
         Function<CommandInput, Command> creator = commandCreators.get(input.getCommand());
         if (creator == null) {
             return null;
         }
         return creator.apply(input);
     }
-
 }

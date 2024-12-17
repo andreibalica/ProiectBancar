@@ -1,125 +1,230 @@
 package org.poo.packagePOO.Bank.Account;
+
 import org.poo.packagePOO.Bank.Account.TransactionsHistory.TransactionHistory;
 import org.poo.packagePOO.Bank.Card;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class BankAccount {
+public final class BankAccount {
     private final String email;
-    private final String IBAN;
+    private final String iban;
     private final String currency;
     private final String accountType;
     private final int timestamp;
-    private final double interestRate;
+    private double interestRate;
     private double balance = 0;
     private double minBalance = 0;
     private ArrayList<Card> cards = new ArrayList<>();
     private ArrayList<TransactionHistory> transactionHistory = new ArrayList<>();
 
-    private BankAccount(BankAccountBuilder builder) {
+    private BankAccount(final BankAccountBuilder builder) {
         this.email = builder.email;
-        this.IBAN = builder.IBAN;
+        this.iban = builder.iban;
         this.currency = builder.currency;
         this.accountType = builder.accountType;
         this.timestamp = builder.timestamp;
         this.interestRate = builder.interestRate;
     }
 
-    public static class BankAccountBuilder {
+    public static final class BankAccountBuilder {
         private final String email;
-        private final String IBAN;
+        private final String iban;
         private final String currency;
         private final int timestamp;
         private String accountType;
         private double interestRate;
 
-        public BankAccountBuilder(String email, String IBAN, String currency, int timestamp) {
+        /**
+         *
+         * @param email
+         * @param iban
+         * @param currency
+         * @param timestamp
+         */
+        public BankAccountBuilder(final String email,
+                                  final String iban,
+                                  final String currency,
+                                  final int timestamp) {
             this.email = email;
-            this.IBAN = IBAN;
+            this.iban = iban;
             this.currency = currency;
             this.timestamp = timestamp;
         }
 
-        public BankAccountBuilder setAccountType(String accountType) {
+        /**
+         *
+         * @param accountType
+         * @return
+         */
+        public BankAccountBuilder setAccountType(final String accountType) {
             this.accountType = accountType;
             return this;
         }
 
-        public BankAccountBuilder setInterestRate(double interestRate) {
+        /**
+         *
+         * @param interestRate
+         * @return
+         */
+        public BankAccountBuilder setInterestRate(final double interestRate) {
             if (!this.accountType.equals("savings")) {
-                throw new IllegalArgumentException("Interest rate is only applicable for savings accounts.");
+                throw new IllegalArgumentException(
+                        "Interest rate is only applicable for savings accounts."
+                );
             }
             this.interestRate = interestRate;
             return this;
         }
 
+        /**
+         *
+         * @return
+         */
         public BankAccount build() {
             if (this.accountType == null) {
                 throw new IllegalStateException("Account type must be specified!");
             }
             return new BankAccount(this);
         }
-
     }
 
+    /**
+     *
+     * @return
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getIBAN() {
-        return IBAN;
+        return iban;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCurrency() {
         return currency;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getAccountType() {
         return accountType;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getTimestamp() {
         return timestamp;
     }
 
+    /**
+     *
+     * @return
+     */
     public double getInterestRate() {
         return interestRate;
     }
 
+    /**
+     *
+     * @return
+     */
     public double getBalance() {
         return balance;
     }
 
-    public double getMinBalance() {return minBalance; }
+    /**
+     *
+     * @return
+     */
+    public double getMinBalance() {
+        return minBalance;
+    }
 
-    public void setMinBalance(double minBalance) {this.minBalance = minBalance;}
+    /**
+     *
+     * @param minBalance
+     */
+    public void setMinBalance(final double minBalance) {
+        this.minBalance = minBalance;
+    }
 
-    public ArrayList<Card> getCards() {return cards;}
+    /**
+     *
+     * @return
+     */
+    public ArrayList<Card> getCards() {
+        return cards;
+    }
 
-    public ArrayList<TransactionHistory> getTransactionHistory() {return transactionHistory;}
+    /**
+     *
+     * @return
+     */
+    public ArrayList<TransactionHistory> getTransactionHistory() {
+        return transactionHistory;
+    }
 
-    public void addAmount(double amount) {
+    /**
+     *
+     * @param amount
+     */
+    public void addAmount(final double amount) {
         balance += amount;
     }
-    public void payAmount(double amount) {
+
+    /**
+     *
+     * @param amount
+     */
+    public void payAmount(final double amount) {
         balance -= amount;
     }
 
-    public void addCard(Card card) {
+    /**
+     *
+     * @param card
+     */
+    public void addCard(final Card card) {
         cards.add(card);
     }
 
-    public void removeCard(Card card) { cards.remove(card);}
+    /**
+     *
+     * @param card
+     */
+    public void removeCard(final Card card) {
+        cards.remove(card);
+    }
 
-    public void deleteCard(String cardNumber) {
+    /**
+     *
+     * @param cardNumber
+     */
+    public void deleteCard(final String cardNumber) {
         Card card = searchCard(cardNumber);
         if (card != null) {
             cards.remove(card);
         }
     }
 
-    public Card searchCard(String cardNumber) {
+    /**
+     *
+     * @param cardNumber
+     * @return
+     */
+    public Card searchCard(final String cardNumber) {
         for (Card card : cards) {
             if (card.getCardNumber().equals(cardNumber)) {
                 return card;
@@ -128,8 +233,33 @@ public class BankAccount {
         return null;
     }
 
-    public void addTransactionHistory(TransactionHistory transaction) {
+    /**
+     *
+     * @param transaction
+     */
+    public void addTransactionHistory(final TransactionHistory transaction) {
         transactionHistory.add(transaction);
     }
 
+    /**
+     *
+     * @param newRate
+     */
+    public void setInterestRate(final double newRate) {
+        if (!accountType.equals("savings")) {
+            throw new IllegalStateException("This is not a savings account");
+        }
+        this.interestRate = newRate;
+    }
+
+    /**
+     *
+     */
+    public void applyInterest() {
+        if (!accountType.equals("savings")) {
+            throw new IllegalStateException("This is not a savings account");
+        }
+        double interestAmount = balance * (interestRate / 100.0);
+        balance += interestAmount;
+    }
 }

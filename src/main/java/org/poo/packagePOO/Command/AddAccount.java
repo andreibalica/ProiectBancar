@@ -5,15 +5,26 @@ import org.poo.packagePOO.Bank.Account.TransactionsHistory.TransactionFactory;
 import org.poo.packagePOO.GlobalManager;
 import org.poo.utils.Utils;
 
-public class AddAccount implements Command {
+public final class AddAccount implements Command {
     private final String email;
     private final String currency;
     private final String accountType;
     private final int timestamp;
     private final double interestRate;
 
-    public AddAccount(String email, String currency, String accountType, int timestamp,
-                      double interestRate) {
+    /**
+     *
+     * @param email
+     * @param currency
+     * @param accountType
+     * @param timestamp
+     * @param interestRate
+     */
+    public AddAccount(final String email,
+                      final String currency,
+                      final String accountType,
+                      final int timestamp,
+                      final double interestRate) {
         this.email = email;
         this.currency = currency;
         this.accountType = accountType;
@@ -21,20 +32,29 @@ public class AddAccount implements Command {
         this.interestRate = interestRate;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public void execute() {
-        String IBAN = Utils.generateIBAN();
-        BankAccount.BankAccountBuilder builder = new BankAccount.BankAccountBuilder(email, IBAN,
-                currency, timestamp);
+        String accountIban = Utils.generateIBAN();
+        BankAccount.BankAccountBuilder builder = new BankAccount.BankAccountBuilder(
+                email,
+                accountIban,
+                currency,
+                timestamp
+        );
         builder.setAccountType(accountType);
 
         if ("savings".equals(accountType)) {
             builder.setInterestRate(interestRate);
         }
 
-
         BankAccount account = builder.build();
-        account.addTransactionHistory(TransactionFactory.createAccountCreationTransaction(timestamp));
+        account.addTransactionHistory(
+                TransactionFactory.createAccountCreationTransaction(timestamp)
+        );
         GlobalManager.getGlobal().getBank().addAccount(account);
     }
 }

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.packagePOO.GlobalManager;
 import org.poo.packagePOO.Transaction.SendMoneyStrategy;
 
-public class SendMoney implements Command {
+public final class SendMoney implements Command {
     private final SendMoneyStrategy strategy;
     private final String account;
     private final double amount;
@@ -13,27 +13,51 @@ public class SendMoney implements Command {
     private final String description;
     private final int timestamp;
 
-    public SendMoney(String account, double amount, String receiver, String description,
-                     int timestamp) {
+    /**
+     *
+     * @param account
+     * @param amount
+     * @param receiver
+     * @param description
+     * @param timestamp
+     */
+    public SendMoney(final String account,
+                     final double amount,
+                     final String receiver,
+                     final String description,
+                     final int timestamp) {
         this.account = account;
         this.amount = amount;
         this.receiver = receiver;
         this.description = description;
         this.timestamp = timestamp;
-        this.strategy = new SendMoneyStrategy(account, amount, receiver, description, timestamp);
+        this.strategy = new SendMoneyStrategy(
+                account,
+                amount,
+                receiver,
+                description,
+                timestamp
+        );
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public void execute() {
-        if ((!strategy.validate() || !strategy.process()) && strategy.getError() != null) {
+        if ((!strategy.validate() || !strategy.process())
+                && strategy.getError() != null) {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode response = mapper.createObjectNode();
-            response.put("command", "sendMoney");
             ObjectNode output = mapper.createObjectNode();
+
+            response.put("command", "sendMoney");
             output.put("timestamp", timestamp);
             output.put("description", strategy.getError());
             response.set("output", output);
             response.put("timestamp", timestamp);
+
             GlobalManager.getGlobal().getOutput().add(response);
         }
     }
